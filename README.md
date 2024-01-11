@@ -38,7 +38,9 @@ spec:
       - https://artifacthub.io/packages/helm/aws/aws-load-balancer-controller/
    
   ## Cloud Native security:
-  ![](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/k8-security.PNG)
+  ![](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/k8-security.png)
+  https://kubernetes.io/docs/concepts/security/overview/
+  
 - This project integrates security at each layer: code, container, cluster, and cloud.
   - The CI/CD pipeline for the cluster contains code quality checks and security checks of the template and the CI/CD pipeline for the deployment contains a scan of the image container, code quality checks, and       security checks of the template.
   - The containers are also secured at the pod level through, securityCapabilities, SGs, restricted pod access to instance metadata service, network policy to restrict network traffic within cluster and RBAC. 
