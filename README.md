@@ -22,7 +22,7 @@ spec:
   source:
     repoURL: https://github.com/smithashley/Kubernetes-Deployment-2.git
     targetRevision: HEAD
-    path: website
+    path: stateful-app
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
