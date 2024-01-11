@@ -2,8 +2,8 @@
 DevSecOps processes are used to deploy a secure application with persistent storage on an EKS cluster.
 
 ## Steps
-- Configured VPC, Subnets, and Security Groups using CloudFormation
-- Deployed EKS cluster using CloudFormation
+- Configured VPC, Subnets, and Security Groups using Terraform
+- Deployed EKS cluster using Terraform
 - Created namespaces to isolate resources
 - Installed Helm
     - https://helm.sh/ 
