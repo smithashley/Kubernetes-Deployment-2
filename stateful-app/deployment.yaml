@@ -32,7 +32,7 @@ spec:
             readOnlyRootFilesystem: true
             seccompProfile:
             type: RuntimeDefault
-          image: ponsfrilus/2048nginx:linux
+          image: hello-world:linux
           ports:
             - containerPort: 80
           resources:
