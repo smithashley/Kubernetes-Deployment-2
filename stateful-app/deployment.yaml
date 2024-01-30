@@ -32,7 +32,7 @@ spec:
             readOnlyRootFilesystem: true
             seccompProfile:
             type: RuntimeDefault
-          image: busybox:stable-musl
+          image: ponsfrilus/2048nginx:linux
           ports:
             - containerPort: 80
           resources:
