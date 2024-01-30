@@ -27,7 +27,7 @@ DevSecOps processes are used to deploy an application on an EKS cluster.
   https://kubernetes.io/docs/concepts/security/overview/
   
 - This project integrates security at each layer: code, container, cluster, and cloud.
-  - The CI/CD pipeline for the deployment contains a scan of the image container, code quality checks, and security checks of the manifests.
-  - The containers are also secured at the pod level through, security contexts, network policies, restricted pod access to instance metadata service, and RBAC. 
-  - The cluster is also secured through the Istio service mesh as well as writing audit logs to S3 to monitor the cluster with AWS GuardDuty for runtime security.
-  -	The cloud enviroment is secured through this multi-layered security approach. Firstly, security groups control network access to resources, offering a basic layer of firewall protection. Secondly, a load balancer behind an Istio service mesh enhances application resiliency and security by providing additional traffic management and microservices protection capabilities.
+  - The CI/CD pipeline for the deployment requires a vulnerability scan of the image container and security checks of the manifests before deploying application to the cluster.
+  - The containers are secured at the pod level through security contexts, network policies, and role based access control. 
+  - The cluster is secured by using audit logs to monitor the cluster with AWS GuardDuty for runtime security.
+  -	The cloud enviroment is secured through security groups controlling network access to resources as well as a load balancer behind an Istio service mesh to provide additional traffic management.
