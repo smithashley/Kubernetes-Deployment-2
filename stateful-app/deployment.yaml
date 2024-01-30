@@ -16,16 +16,23 @@ spec:
       labels:
         app: counter
     spec:
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 2000
       containers:
         - name: counter
+          automountServiceAccountToken: false
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
+            runAsUser: 1000
             capabilities:
               drop:
               - ALL
             readOnlyRootFilesystem: true
-          image: public.ecr.aws/aws-containers/stateful-counter:latest
+            seccompProfile:
+            type: RuntimeDefault
+          image: busybox:stable-musl@sha256:d4707523ce6e12afdbe9a3be5ad69027150a834870ca0933baf7516dd1fe0f56
           ports:
             - containerPort: 80
           resources:
@@ -35,3 +42,15 @@ spec:
             requests:
               cpu: 100m
               memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz  
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /ready  
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
