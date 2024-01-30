@@ -32,7 +32,7 @@ spec:
             readOnlyRootFilesystem: true
             seccompProfile:
             type: RuntimeDefault
-          image: busybox:stable-musl@sha256:d4707523ce6e12afdbe9a3be5ad69027150a834870ca0933baf7516dd1fe0f56
+          image: busybox:stable-musl
           ports:
             - containerPort: 80
           resources:
