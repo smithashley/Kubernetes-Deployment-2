@@ -3,7 +3,7 @@ DevSecOps processes are used to deploy an application to an EKS cluster.
 
 ## Cloud Native security:
 
-[](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/k8-security.png)
+![](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/k8-security.png)
 https://kubernetes.io/docs/concepts/security/overview/
 
 - This project integrates security at each layer: code, container, cluster, and cloud.
@@ -33,4 +33,4 @@ https://kubernetes.io/docs/concepts/security/overview/
     - delete (option to delete application from eks cluster)
 - Kube-bench runs security audit against CIS Kubernetes Benchmark
 
-[](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/kube-bench.png)
+![](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/kube-bench.png)
