@@ -58,3 +58,14 @@ resource "aws_guardduty_detector" "Runtime_Security" {
     }
   }
 }
+
+resource "aws_guardduty_detector_feature" "Runtime_Security" {
+  detector_id = aws_guardduty_detector.Runtime_Security.id
+  name        = "EKS_RUNTIME_MONITORING"
+  status      = "ENABLED"
+
+  additional_configuration {
+    name   = "EKS_ADDON_MANAGEMENT"
+    status = "ENABLED"
+  }
+}
