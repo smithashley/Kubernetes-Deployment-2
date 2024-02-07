@@ -1,6 +1,8 @@
-# Counter app
+# Stateful counter
 
-An example app that stores state is postgres
+![an app that clicks a button and the number increases](embedded-images/counter-app.gif)
+
+An example app that stores state in postgres
 
 Run it locally in a container with
 
