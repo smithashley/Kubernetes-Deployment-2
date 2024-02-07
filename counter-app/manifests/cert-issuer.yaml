@@ -18,10 +18,6 @@ spec:
       selector:
         dnsZones:
         - "smithashleyprojects.com"
-    # privateKeySecretRef:
-    #   name: staging-cluster-issuer
-    # solvers:
-    #   - selector: {}
-    #     http01:
-    #       ingress:
-    #         class: istio
+    - http01:
+        ingress:
+          class: istio
