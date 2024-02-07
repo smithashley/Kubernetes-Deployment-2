@@ -7,7 +7,6 @@ metadata:
 spec:
   hosts:
   - devsecops.smithashleyprojects.com
-  # - "*"
   gateways:
   - api
   http:
