@@ -1,0 +1,21 @@
+#Specify ports to receive traffic
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway 
+metadata:
+  name: api
+  namespace: staging
+  annotations:
+    service.istio.io/serviceAccount: istio-sa
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - devsecops.smithashleyprojects.com
+    tls:
+      mode: SIMPLE                          
+      credentialName: tls-secret

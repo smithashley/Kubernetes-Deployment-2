@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: devsecops
+  namespace: istio-system
+spec:
+  secretName: tls-secret
+  dnsNames:
+    - devsecops.smithashleyprojects.com
+  issuerRef:
+    name: staging-cluster-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

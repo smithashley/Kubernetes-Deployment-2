@@ -1,0 +1,33 @@
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: counter-network-policy
+#   namespace: staging
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: counter
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - from:
+#     - namespaceSelector:
+#           matchLabels:  
+#             name: staging
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: db-network-policy
+#   namespace: staging
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: postgres
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - from:
+#     - namespaceSelector:
+#         matchLabels:  
+#           name: staging  

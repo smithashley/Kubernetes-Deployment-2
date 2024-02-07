@@ -1,0 +1,21 @@
+#Allow to configure sidecar proxies and interact with services in the mesh, routes to services like an ingress
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService 
+metadata:
+  name: counter
+  namespace: staging
+spec:
+  hosts:
+  - devsecops.smithashleyprojects.com
+  # - "*"
+  gateways:
+  - api
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: counter-service
+        port:
+          number: 443
