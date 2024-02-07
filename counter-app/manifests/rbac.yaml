@@ -7,11 +7,14 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: tls-secret-role
+  name: cert-manager-read-role
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames: ["tls-secret"]
+  verbs: ["get"]
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates"]
   verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -26,4 +29,4 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: tls-secret-role
+  name: cert-manager-read-role
