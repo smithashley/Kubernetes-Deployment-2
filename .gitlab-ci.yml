@@ -1,0 +1,146 @@
+variables:
+  ACTION: "create_application"
+  REPOSITORY: "https://$(CI_PIPELINE):$(CI_PIPELINE)@gitlab.com/smithashley/Kubernetes-Deployment-2.git"
+  APP_ID: "stateful-counter"
+  APP_PATH: "counter-app"
+  IMAGE_PATH: "src"
+  MANIFESTS_PATH: "manifests"
+  DEPLOYMENT_PATH: "manifests/deployment"
+  ARGO_APP_PATH: "argocd/application"
+  TARGET_BRANCH: "main"
+  SOURCE_BRANCH: "feature/hello-app"
+  EKS_CLUSTER: "eks_cluster"
+  REGION: "us-east-1"
+  NAMESPACE: "staging"
+
+before_script:
+  - apt-get update && apt-get install -y git
+
+stages:
+  - build-image
+  - image-push
+  - iac-scan
+  - deploy-code
+  - deploy-app
+  - delete-app
+
+include:
+- template: Security/Container-Scanning.gitlab-ci.yml
+
+build-image:
+  services:
+  - name: docker:dind
+    alias: dind
+  image: docker:stable
+  stage: build-image
+  rules:
+    - if: $ACTION == "create_image"
+  script:
+    - echo "Scanning $image"
+    - docker build . --file src/Dockerfile -t $APP_ID
+    - |
+      # Replace with your chosen scanner and configuration commands
+      # Ensure the scanner is available in the container
+      scanner_name="trivy" 
+      scanner_command="trivy i --severity HIGH,CRITICAL $APP_NAME --exit-code 1"
+      echo "Running container scan with $scanner_name..."
+      eval $scanner_command
+      # Handle potential scan results and exit codes appropriately
+    # - trivy i --severity HIGH,CRITICAL $APP_NAME --exit-code 1
+    # - |  
+    #   if [[ $? -eq 1 ]]; then
+    #     echo "Trivy scan found high or critical CVEs in image"
+    #     exit 1
+    #   fi
+    #   echo "Image scan(s) complete."
+    - docker tag $APP_ID public.ecr.aws/g8c3h1d4/$APP_ID
+    - docker images --no-trunc
+  # artifacts:
+  #   paths:
+  #     - /var/lib/docker
+
+# image-push:
+#   stage: image-push
+#   rules:
+#     - if: $ACTION == "create_image"
+#   dependencies:
+#     - image-scan
+#   script:
+#     - apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release curl
+#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/docker-ce_25.0.2~3-0~ubuntu-focal_amd64.deb -o docker-ce.deb
+#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/docker-ce-cli_25.0.2~3-0~ubuntu-focal_amd64.deb -o docker-ce-cli.deb
+#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/containerd.io_25.0.2-1_amd64.deb -o containerd.deb
+#     - apt-get install docker-ce.deb docker-ce-cli.deb containerd.deb
+#     - docker build . --file Dockerfile -t $APP_ID
+#     - docker tag $APP_ID public.ecr.aws/g8c3h1d4/$APP_ID
+#     - docker images --no-trunc 
+
+iac-scan:
+  stage: iac-scan
+  rules:
+    - if: $ACTION == "create_application"
+  script:
+    - apt-get update && apt-get install -y python3-pip
+    - pip3 install checkov
+    - echo "Starting IaC scan..."
+    - checkov --framework kubernetes -d ./$APP_PATH/$MANIFESTS_PATH/ || exit 1
+    - echo "IaC scan complete."
+
+deploy-code:
+  stage: deploy-code
+  needs:
+    - iac-scan
+  rules:
+    - if: $ACTION == "create_application"
+  script:
+    - git remote set-url origin $REPOSITORY
+    - git fetch --all
+    - git checkout $SOURCE_BRANCH
+    - git checkout $TARGET_BRANCH 
+    - git config --global user.name "$CI_USER_NAME"
+    - git config --global user.email "$CI_USER_EMAIL"
+    - git merge --allow-unrelated-histories $SOURCE_BRANCH -m "Merge branch 'source-branch' into 'target-branch'" 
+    - git push origin
+
+deploy-app:
+  stage: deploy-app
+  needs:
+    - deploy-code
+  rules:
+    - if: $ACTION == "create_application" 
+  script:
+    - apt-get update && apt-get -y install curl unzip apt-transport-https ca-certificates gnupg
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
+    - aws --version
+    - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+    - apt-get update
+    - apt-get install -y kubectl
+    - echo "Deploying to EKS cluster..."
+    - aws eks update-kubeconfig --name $EKS_CLUSTER --region $REGION
+    - kubectl apply -f "local-repo/$APP_PATH/$ARGO_APP_PATH.yaml"
+    - echo "Deployment to EKS cluster complete."
+
+delete-app:
+  stage: delete-app
+  rules:
+    - if: $ACTION == "delete_application"
+  script:
+    - apt-get update && apt-get -y install curl unzip apt-transport-https ca-certificates gnupg
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
+    - aws --version
+    - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+    - apt-get update
+    - apt-get install -y kubectl
+    - echo "Deleting Application..."
+    - |
+      argo_app_file="local-repo/$APP_PATH/$ARGO_APP_PATH.yaml"
+      argocd_app=$(grep -Po '(?<=name: )[^[:space:]]+' "$argo_app_file")
+    - aws eks update-kubeconfig --name $EKS_CLUSTER --region $REGION
+    - kubectl delete application/$argocd_app -n argocd
+    - echo "Delete is complete."
