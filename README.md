@@ -37,3 +37,4 @@ https://kubernetes.io/docs/concepts/security/overview/
     - delete (option to delete application from eks cluster)
 - Kube-bench runs security audit against CIS Kubernetes Benchmark  
   ![](embedded-images/kube-bench.PNG)
+  ![](embedded-images/kube-bench-2.PNG)
