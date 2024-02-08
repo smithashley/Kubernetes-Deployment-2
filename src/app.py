@@ -6,13 +6,13 @@ from fastapi.logger import logger as fastapi_logger
 import uvicorn, psycopg2, os, logging
 
 # setup loggers
-logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logging.config.fileConfig('src/logging.conf', disable_existing_loggers=False)
 
 # get root logger
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="src/templates")
 
 db_user  = os.getenv('DB_USER')
 db_pass  = os.getenv('DB_PASS')
