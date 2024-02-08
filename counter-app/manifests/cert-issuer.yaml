@@ -4,8 +4,6 @@ metadata:
   name: staging-cluster-issuer
 spec:
   acme:
-    # Staging Environment: must be used for testing before using prod env
-    # Letsencrypt has a strict rate limit.
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     email: afsmithcodes@gmail.com
     privateKeySecretRef:
@@ -13,7 +11,7 @@ spec:
     solvers:
     - dns01:
         route53:
-          hostedZoneID: "Z03710931BEE0076OS3VG"
+          hostedZoneID: XXXXXXXXXXXXXXXXXXXX
           region: us-east-1
       selector:
         dnsZones:
