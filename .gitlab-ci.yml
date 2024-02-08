@@ -1,6 +1,7 @@
 variables:
-  # ACTION: "create_application"
+  ACTION: ""
   REPOSITORY: "https://$(CI_PIPELINE):$(CI_PIPELINE)@gitlab.com/smithashley/Kubernetes-Deployment-2.git"
+  APP_VERSION: 1.0.0
   APP_ID: "stateful-counter"
   APP_PATH: "counter-app"
   IMAGE_PATH: "src"
@@ -8,77 +9,58 @@ variables:
   DEPLOYMENT_PATH: "manifests/deployment"
   ARGO_APP_PATH: "argocd/application"
   TARGET_BRANCH: "main"
-  SOURCE_BRANCH: "feature/hello-app"
+  SOURCE_BRANCH: "feature/counter-app"
   EKS_CLUSTER: "eks_cluster"
   REGION: "us-east-1"
   NAMESPACE: "staging"
+  docker_url: smithashley/stateful-counter
 
-before_script:
-  - apt-get update && apt-get install -y git
 
-stages:
+stages: 
   - build-image
-  - image-push
   - iac-scan
   - deploy-code
   - deploy-app
   - delete-app
 
-include:
-- template: Security/Container-Scanning.gitlab-ci.yml
-
 build-image:
-  services:
-  - name: docker:dind
-    alias: dind
-  image: docker:stable
-  stage: build-image
   rules:
     - if: $ACTION == "create_image"
+  image: docker:latest
+  stage: build-image
+  services:
+    - name: docker:dind
   script:
-    - echo "Scanning $image"
-    - docker build . --file src/Dockerfile -t $APP_ID
-    - |
-      # Replace with your chosen scanner and configuration commands
-      # Ensure the scanner is available in the container
-      scanner_name="trivy" 
-      scanner_command="trivy i --severity HIGH,CRITICAL $APP_NAME --exit-code 1"
-      echo "Running container scan with $scanner_name..."
-      eval $scanner_command
-      # Handle potential scan results and exit codes appropriately
-    # - trivy i --severity HIGH,CRITICAL $APP_NAME --exit-code 1
-    # - |  
-    #   if [[ $? -eq 1 ]]; then
-    #     echo "Trivy scan found high or critical CVEs in image"
-    #     exit 1
-    #   fi
-    #   echo "Image scan(s) complete."
-    - docker tag $APP_ID public.ecr.aws/g8c3h1d4/$APP_ID
-    - docker images --no-trunc
-  # artifacts:
-  #   paths:
-  #     - /var/lib/docker
+  - ls
+  - echo "Building image..."
+  - docker build . --file src/Dockerfile -t $APP_ID
+  # Install Trivy
+  - |
+    apk add --no-cache curl unzip
+    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.49.0
+  # Ensure Trivy is in PATH
+  - export PATH=$PATH:/usr/local/bin
+  # Scan the image and fail the pipeline if critical vulnerabilities are found
+  - |
+    echo "Scanning image..."
+    trivy i --severity CRITICAL --exit-code 1 $APP_ID
+    if [[ $? -eq 1 ]]; then
+      echo "Trivy scan found high or critical CVEs in image"
+      exit 1
+    fi
+  - echo "Image scan(s) complete."
+  - |
+    echo "Pushing image to Docker Hub..."
+    docker login -u smithashley -p $docker_access_token
+    docker tag $APP_ID smithashley/$APP_ID:$APP_VERSION
+    docker push smithashley/$APP_ID:$APP_VERSION 
 
-# image-push:
-#   stage: image-push
-#   rules:
-#     - if: $ACTION == "create_image"
-#   dependencies:
-#     - image-scan
-#   script:
-#     - apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release curl
-#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/docker-ce_25.0.2~3-0~ubuntu-focal_amd64.deb -o docker-ce.deb
-#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/docker-ce-cli_25.0.2~3-0~ubuntu-focal_amd64.deb -o docker-ce-cli.deb
-#     - curl https://download.docker.com/linux/ubuntu/dists/$(lsb_release --codename | cut -f2)/pool/stable/$(dpkg --print-architecture)/containerd.io_25.0.2-1_amd64.deb -o containerd.deb
-#     - apt-get install docker-ce.deb docker-ce-cli.deb containerd.deb
-#     - docker build . --file Dockerfile -t $APP_ID
-#     - docker tag $APP_ID public.ecr.aws/g8c3h1d4/$APP_ID
-#     - docker images --no-trunc 
 
 iac-scan:
-  stage: iac-scan
   rules:
     - if: $ACTION == "create_application"
+  image: ubuntu:latest
+  stage: iac-scan
   script:
     - apt-get update && apt-get install -y python3-pip
     - pip3 install checkov
@@ -93,21 +75,23 @@ deploy-code:
   rules:
     - if: $ACTION == "create_application"
   script:
+    - apt-get update && apt-get install -y git
     - git remote set-url origin $REPOSITORY
     - git fetch --all
     - git checkout $SOURCE_BRANCH
     - git checkout $TARGET_BRANCH 
     - git config --global user.name "$CI_USER_NAME"
     - git config --global user.email "$CI_USER_EMAIL"
-    - git merge --allow-unrelated-histories $SOURCE_BRANCH -m "Merge branch 'source-branch' into 'target-branch'" 
+    - git merge $SOURCE_BRANCH -m "Merge branch 'source-branch' into 'target-branch'" 
     - git push origin
 
 deploy-app:
+  rules:
+    - if: $ACTION == "create_application"
+  image: ubuntu:latest
   stage: deploy-app
   needs:
     - deploy-code
-  rules:
-    - if: $ACTION == "create_application" 
   script:
     - apt-get update && apt-get -y install curl unzip apt-transport-https ca-certificates gnupg
     - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -124,9 +108,10 @@ deploy-app:
     - echo "Deployment to EKS cluster complete."
 
 delete-app:
-  stage: delete-app
   rules:
-    - if: $ACTION == "delete_application"
+    - if: $ACTION == "create_application"
+  image: ubuntu:latest
+  stage: delete-app
   script:
     - apt-get update && apt-get -y install curl unzip apt-transport-https ca-certificates gnupg
     - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
