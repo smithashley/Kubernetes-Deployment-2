@@ -27,11 +27,14 @@ https://kubernetes.io/docs/concepts/security/overview/
 - Installed Helm chart for Cert Manager 
     - https://artifacthub.io/packages/helm/cert-manager/cert-manager
 - Created CI pipeline using Gitlab with the following stages
-    - image-scan (vulnerability scan for container image using Trivy)
+    - build-image (build image from dockerfile and vulnerability scan for container image using Trivy)
+      ![](embedded-images/trivy.png)
     - iac-scan (vulnerability scan for kubernetes manifests using Checkov)
+      ![](embedded-images/checkov.png)
     - deploy-code (code is merged with the main branch)
     - deploy-app (argocd application file is applied to eks cluster)
+      ![](embedded-images/argocd.png)
     - delete (option to delete application from eks cluster)
 - Kube-bench runs security audit against CIS Kubernetes Benchmark
 
-![](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/kube-bench.png)
+![](embedded-images/kube-bench.png)
