@@ -1,6 +1,6 @@
 # Stateful counter
 
-![an app that clicks a button and the number increases](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/counter-app.gif)
+![an app that clicks a button and the number increases](https://github.com/smithashley/Kubernetes-Deployment-2/blob/main/embedded-images/counter.png)
 https://github.com/aws-containers/stateful-counter
 
 An example app that stores state in postgres
