@@ -1,5 +1,5 @@
 variables:
-  ACTION: "create_application"
+  # ACTION: "create_application"
   REPOSITORY: "https://$(CI_PIPELINE):$(CI_PIPELINE)@gitlab.com/smithashley/Kubernetes-Deployment-2.git"
   APP_ID: "stateful-counter"
   APP_PATH: "counter-app"
