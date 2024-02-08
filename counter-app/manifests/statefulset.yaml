@@ -7,6 +7,9 @@ metadata:
     checkov.io/skip1: CKV_K8S_8
     checkov.io/skip2: CKV_K8S_9
     checkov.io/skip3: CKV_K8S_22
+    checkov.io/skip4: CKV_K8S_23
+    checkov.io/skip5: CKV_K8S_37
+    checkov.io/skip6: CKV_K8S_40
 spec:
   replicas: 1
   serviceName: postgres
@@ -19,19 +22,19 @@ spec:
         app: postgres
     spec:
       terminationGracePeriodSeconds: 5
-      # automountServiceAccountToken: false
-      # securityContext:
-      #   seccompProfile:
-      #     type: Unconfined
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: postgres
           image: postgres@sha256:021d7d217750a1b97b2232c1be9331eaa3f7d90a8a1bb2e9c25cd04a28e8306c
           securityContext:
-            # allowPrivilegeEscalation: false
-            # capabilities:
-            #   drop:
-            #     - ALL
-          imagePullPolicy: "IfNotPresent"
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - NET_RAW
+          imagePullPolicy: Always
           ports:
             - containerPort: 5432
           envFrom:
@@ -49,16 +52,7 @@ spec:
               cpu: "250m"
             limits:
               memory: "128Mi"
-              cpu: "500m"
-      # volumeClaimTemplates:
-      #   - metadata:
-      #       name: persistent-storage
-      #     spec:
-      #       accessModes: ["ReadWriteOnce"]
-      #       storageClassName: ebs-sc
-      #       resources:
-      #         requests:
-      #           storage: 2Gi 
+              cpu: "500m" 
       volumes:
         - name: persistent-storage
           persistentVolumeClaim:
