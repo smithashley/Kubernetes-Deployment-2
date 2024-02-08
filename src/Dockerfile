@@ -6,8 +6,8 @@ ENV PATH=/usr/local/bin:$PATH \
     PYTHONDONTWRITEBYTECODE=1
 
 EXPOSE 8000
-WORKDIR /srv
-COPY . /srv
+WORKDIR /src
+COPY . /src
 
 RUN amazon-linux-extras enable python3.8 -y \
     && yum install -y \
@@ -23,9 +23,9 @@ RUN amazon-linux-extras enable python3.8 -y \
     && ln -s /usr/bin/python3.8-config /usr/local/bin/python-config \
     && yum -y clean all --enablerepo='*'
 
-RUN pip3 install psycopg2-binary
+RUN pip3 install fastapi uvicorn psycopg2-binary jinja2
 RUN pip3 install pipenv
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv --python 3.8 install --deploy
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv --python 3.8 install fastapi uvicorn psycopg2-binary jinja2 --deploy
 
 ENV PATH="/.venv/bin:$PATH" \
     DB_USER=postgres \
@@ -34,4 +34,4 @@ ENV PATH="/.venv/bin:$PATH" \
     DB_PORT=5432 \
     DB_DB=postgres
 
-CMD ["pipenv", "run", "python", "./app.py"]
+CMD ["pipenv", "run", "python", "src/app.py"]
