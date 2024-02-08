@@ -18,27 +18,26 @@ spec:
       labels:
         app: counter
     spec:
-      # automountServiceAccountToken: false
-      # securityContext:
-      #   # seccompProfile:
-      #       # type: RuntimeDefault
-      #   runAsNonRoot: true
-      #   # runAsUser: 10014
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+            type: RuntimeDefault
+        runAsNonRoot: true
+        runAsUser: 10014
       containers:
       - name: counter-pod
-        image: public.ecr.aws/r9u2q4e0/my-static-website:latest
-        # image: public.ecr.aws/aws-containers/stateful-counter@sha256:a510ee229219c1a162e3619301b724587e3f480e4fd52d3b4e03af4af2ac9ac8
-        # securityContext:
-          # allowPrivilegeEscalation: false
-          # runAsNonRoot: true
-          # runAsUser: 10014
-          # capabilities:
-            # drop:
-            # - ALL
-          # readOnlyRootFilesystem: true
+        image: smithashley/stateful-counter@sha256:ce88143a310e5e875b65a7766a1394c2728504b30565ca6bbf7439c437894166
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 10014
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 8000
         resources:
           requests:
             memory: "16Mi"
