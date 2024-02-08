@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://gitlab.com/afsmithcodes/Kubernetes-Deployment-2.git
+    repoURL: https://gitlab.com/smithashley/Kubernetes-Deployment-2.git
     targetRevision: HEAD
     path: counter-app/manifests
   destination:
