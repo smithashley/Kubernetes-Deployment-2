@@ -35,6 +35,5 @@ https://kubernetes.io/docs/concepts/security/overview/
     - deploy-app (argocd application file is applied to eks cluster)  
       ![](embedded-images/argocd.PNG)
     - delete (option to delete application from eks cluster)
-- Kube-bench runs security audit against CIS Kubernetes Benchmark
-
-![](embedded-images/kube-bench.png)
+- Kube-bench runs security audit against CIS Kubernetes Benchmark  
+  ![](embedded-images/kube-bench.PNG)
