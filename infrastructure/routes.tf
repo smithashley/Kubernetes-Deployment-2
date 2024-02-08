@@ -51,6 +51,3 @@ resource "aws_route_table_association" "private_route_table_association2" {
   subnet_id      = aws_subnet.private_subnet_2.id
   route_table_id = aws_route_table.private_route_table2.id
 }
-
-
-
