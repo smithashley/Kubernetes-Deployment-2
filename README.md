@@ -1,4 +1,4 @@
-# Kubernetes-Deployment-2
+# Stateful Counter Deployment
 DevSecOps processes are used to deploy an application to an EKS cluster.
 
 ## Cloud Native security:
