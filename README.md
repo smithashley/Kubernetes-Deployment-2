@@ -1,5 +1,5 @@
 # Stateful Counter Deployment
-DevSecOps processes were used to deploy a stateful application on an EKS cluster, network traffic was encrypted through an Istio service mesh, and security is validated using CIS benchmark.
+DevSecOps processes were used to deploy a stateful application on an EKS cluster, network traffic was encrypted through an Istio service mesh, and security is validated using CIS benchmarks.
 
 ## Cloud Native security:
 
